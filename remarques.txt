@@ -1,0 +1,62 @@
+===============================================================================
+                       REMARQUES ET DIAGNOSTIC - TP5 APP
+===============================================================================
+
+1. DIAGNOSTIC DU PLANTAGE INITIAL (SORTIE DE L'APPLICATION)
+-------------------------------------------------------------------------------
+* Cause principale :
+  Dans le fichier "res/navigation/mobile_navigation.xml", l'élément de
+  destination "nav_liste" faisait référence à la classe :
+  "com.isetr.tp5app.ui.liste.ListeFragment".
+
+  Cependant, cette classe n'existait pas dans le code Kotlin (le fichier
+  ListeFragment.kt ne contenait initialement que la classe EtudiantAdapter).
+
+  Lorsque vous cliquiez sur "Liste des étudiants" dans le menu Drawer,
+  le Navigation Component essayait de charger la classe ListeFragment par
+  réflexion. Ne la trouvant pas, une exception Android (ClassNotFoundException)
+  était levée, provoquant l'arrêt brutal (crash) de l'application.
+
+
+2. ÉTAT ACTUEL ET CORRECTIONS EFFECTUÉES
+-------------------------------------------------------------------------------
+* Création de la classe ListeFragment :
+  La classe ListeFragment a été créée dans "ui/liste/ListeFragment.kt".
+  Elle gonfle correctement le layout "fragment_liste.xml", configure le
+  LinearLayoutManager sur le RecyclerView "rvEtudiants" et lui associe
+  l'adaptateur EtudiantAdapter.
+
+* Séparation de l'adaptateur :
+  L'adaptateur a été extrait dans son propre fichier "EtudientAdapter.kt".
+
+
+3. REMARQUES ET AMÉLIORATIONS À APPORTER
+-------------------------------------------------------------------------------
+* A. Erreur dans MainActivity.kt (Drawer Configuration) :
+  Dans "MainActivity.kt", la variable appBarConfiguration contient une répétition
+  de "R.id.nav_liste" au lieu de "R.id.nav_ajout" :
+
+  Actuel :
+      appBarConfiguration = AppBarConfiguration(
+          setOf(
+              R.id.nav_home, R.id.nav_liste, R.id.nav_liste
+          ), drawerLayout
+      )
+
+  À corriger en :
+      appBarConfiguration = AppBarConfiguration(
+          setOf(
+              R.id.nav_home, R.id.nav_liste, R.id.nav_ajout
+          ), drawerLayout
+      )
+
+  Remarque : Si R.id.nav_ajout n'est pas inclus dans ce Set, l'écran d'ajout
+  ne sera pas considéré comme destination de premier niveau et affichera
+  une flèche de retour au lieu de l'icône du menu latéral.
+
+* B. Nommage du fichier de l'adaptateur :
+  Le fichier créé s'appelle "EtudientAdapter.kt" (avec un 'e'). Il est
+  conseillé de le renommer en "EtudiantAdapter.kt" (avec un 'a') pour rester
+  cohérent avec le nom de la classe et les conventions de nommage du projet.
+
+===============================================================================
